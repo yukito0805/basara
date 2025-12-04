@@ -1,0 +1,3726 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>瑞浪バサラカーニバル タイムテーブル検索</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: #f5f5f7;
+      color: #222;
+    }
+
+    header {
+      padding: 16px 24px;
+      background: linear-gradient(135deg, #ff7a00, #ff3b3b);
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1.4rem;
+    }
+
+    header p {
+      margin: 4px 0 0;
+      font-size: 0.9rem;
+      opacity: 0.9;
+    }
+
+    main {
+      max-width: 1000px;
+      margin: 16px auto 32px;
+      padding: 0 16px;
+    }
+
+    .search-panel {
+      background: #fff;
+      padding: 16px;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+      margin-bottom: 16px;
+    }
+
+    .search-panel h2 {
+      margin: 0 0 12px;
+      font-size: 1.1rem;
+    }
+
+    .filters {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    label {
+      display: flex;
+      flex-direction: column;
+      font-size: 0.8rem;
+      color: #555;
+      gap: 4px;
+    }
+
+    input[type="text"],
+    select {
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid #ccc;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      background: #fafafa;
+    }
+
+    input[type="text"]:focus,
+    select:focus {
+      border-color: #ff7a00;
+      box-shadow: 0 0 0 2px rgba(255, 122, 0, 0.2);
+      background: #fff;
+    }
+
+    .meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+      color: #666;
+      margin-top: 4px;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .reset-btn {
+      border: none;
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      background: #eee;
+      transition: background 0.15s, transform 0.05s;
+    }
+
+    .reset-btn:hover {
+      background: #ddd;
+    }
+
+    .reset-btn:active {
+      transform: scale(0.97);
+    }
+
+    .table-wrapper {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+      padding: 8px 12px 12px;
+      overflow-x: auto;
+      margin-bottom: 16px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 700px;
+    }
+
+    thead {
+      position: sticky;
+      top: 0;
+      background: #fff;
+      z-index: 1;
+    }
+
+    th, td {
+      padding: 8px 10px;
+      font-size: 0.9rem;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+      white-space: nowrap;
+    }
+
+    th {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #999;
+    }
+
+    tbody tr:hover {
+      outline: 1px solid rgba(0,0,0,0.04);
+    }
+
+    .badge-day {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      background: #ffe4cc;
+      color: #994400;
+    }
+
+    .badge-stage {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      background: #e8f0ff;
+      color: #1c4fd7;
+    }
+
+    .note {
+      font-size: 0.8rem;
+      color: #666;
+    }
+
+    .empty {
+      padding: 16px;
+      text-align: center;
+      font-size: 0.9rem;
+      color: #777;
+    }
+
+    .small-note {
+      font-size: 0.8rem;
+      color: #666;
+      margin: 4px 0 8px;
+    }
+
+    .fav-col {
+      width: 40px;
+      text-align: center;
+    }
+
+    .fav-checkbox {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+    }
+
+    .section-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+
+    .count-pill {
+      font-size: 0.75rem;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: #eee;
+      color: #555;
+    }
+
+    /* time-band colors */
+    .band-morning td {
+      background: #fffef2;
+    }
+    .band-noon td {
+      background: #f2fbff;
+    }
+    .band-evening td {
+      background: #fdf2ff;
+    }
+
+    @media (max-width: 640px) {
+      header h1 {
+        font-size: 1.1rem;
+      }
+      header p {
+        font-size: 0.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>瑞浪バサラカーニバル タイムテーブル検索</h1>
+    <p>本祭（2025年12月14日）／第1〜第6会場＋U-15選手権／マイタイムテーブル＋時間帯カラー表示</p>
+  </header>
+
+  <main>
+    <section class="search-panel">
+      <h2>検索条件</h2>
+      <div class="filters">
+        <label>
+          キーワード（チーム名など）
+          <input id="keyword" type="text" placeholder="例：バサラ瑞浪, 心纏い, 梅波冴 など" />
+        </label>
+
+        <label>
+          会場
+          <select id="stage">
+            <option value="">すべて</option>
+            <option value="__FAV__">マイタイムテーブル（チェックしたチームのみ）</option>
+            <option value="U-15選手権">U-15選手権</option>
+            <option value="第1会場 公園線 北会場">第1会場 公園線 北会場</option>
+            <option value="第2会場 公園線 中央会場">第2会場 公園線 中央会場</option>
+            <option value="第3会場 公園線 南会場">第3会場 公園線 南会場</option>
+            <option value="第4会場 浪花駐車場会場">第4会場 浪花駐車場会場</option>
+            <option value="第5会場 駅前会場">第5会場 駅前会場</option>
+            <option value="第6会場 ときわ第1Ｐ会場">第6会場 ときわ第1Ｐ会場</option>
+          </select>
+        </label>
+      </div>
+      <div class="meta">
+        <span id="countInfo">全 0 件</span>
+        <button class="reset-btn" id="resetBtn">条件リセット</button>
+      </div>
+    </section>
+<div id="mapBox" style="display:none; margin:16px 0;">
+<div class="mapItem" data-key="U-15選手権" style="display:none;"><iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d609.3417152312247!2d137.2533655702831!3d35.36819024003858!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x600347bce17f1237%3A0x1ef53bbf5ac46e51!2z5Lqk5rWB44K744Oz44K_44O844Go44GN44KPIOesrOS4gOS7mOWxnumnkOi7iuWgtA!5e0!3m2!1sja!2sjp!4v1764820538496!5m2!1sja!2sjp" style="width:100%; aspect-ratio:16/9; border:0; border-radius:16px;" allowfullscreen loading="lazy"></iframe></div>
+<div class="mapItem" data-key="第1会場 公園線 北会場" style="display:none;"><iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d542.8630177024495!2d137.25316497556884!3d35.368004416154754!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x600347dcb174acfd%3A0xb8ec59670ffc82fe!2z44OQ44K144Op44Kr44O844OL44OQ44OrIOWFrOWckue3miDljJfkvJrloLQ!5e0!3m2!1sja!2sjp!4v1764820120037!5m2!1sja!2sjp" style="width:100%; aspect-ratio:16/9; border:0; border-radius:16px;" allowfullscreen loading="lazy"></iframe></div>
+<div class="mapItem" data-key="第2会場 公園線 中央会場" style="display:none;"><iframe src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d406.6909351117637!2d137.25317712076819!3d35.36737124510214!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sja!2sjp!4v1764820195744!5m2!1sja!2sjp" style="width:100%; aspect-ratio:16/9; border:0; border-radius:16px;" allowfullscreen loading="lazy"></iframe></div>
+<div class="mapItem" data-key="第3会場 公園線 南会場" style="display:none;"><iframe src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d406.6929782498669!2d137.2535063986867!3d35.36696571957299!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sja!2sjp!4v1764820335710!5m2!1sja!2sjp" style="width:100%; aspect-ratio:16/9; border:0; border-radius:16px;" allowfullscreen loading="lazy"></iframe></div>
+<div class="mapItem" data-key="第4会場 浪花駐車場会場" style="display:none;"><iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d406.6940210603667!2d137.25246246904132!3d35.36675873921095!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x600347dcac188f57%3A0x39ad5a5f4f787ce!2z55Ge5rWq5biCIOa1quiKsemnkOi7iuWgtA!5e0!3m2!1sja!2sjp!4v1764820368317!5m2!1sja!2sjp" style="width:100%; aspect-ratio:16/9; border:0; border-radius:16px;" allowfullscreen loading="lazy"></iframe></div>
+<div class="mapItem" data-key="第5会場 駅前会場" style="display:none;"><iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d609.3392536985834!2d137.2520011969538!3d35.36851631135651!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x6003468796f62c6b%3A0x1fd21bb5eb74d27!2z55Ge5rWq6aeF5YmN!5e0!3m2!1sja!2sjp!4v1764820475874!5m2!1sja!2sjp" style="width:100%; aspect-ratio:16/9; border:0; border-radius:16px;" allowfullscreen loading="lazy"></iframe></div>
+<div class="mapItem" data-key="第6会場 ときわ第1Ｐ会場" style="display:none;"><iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d609.3417152312247!2d137.2533655702831!3d35.36819024003858!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x600347bce17f1237%3A0x1ef53bbf5ac46e51!2z5Lqk5rWB44K744Oz44K_44O844Go44GN44KPIOesrOS4gOS7mOWxnumnkOi7iuWgtA!5e0!3m2!1sja!2sjp!4v1764820538496!5m2!1sja!2sjp" style="width:100%; aspect-ratio:16/9; border:0; border-radius:16px;" allowfullscreen loading="lazy"></iframe></div>
+</div>
+
+    <section class="table-wrapper" id="resultsSection">
+      <div class="section-title-row">
+        <h2>全ステージ一覧</h2>
+        <span class="count-pill" id="listHint">チェックボックスでマイタイムテーブルに追加／行背景色＝時間帯</span>
+      </div>
+      <div id="resultsWrapper"></div>
+    </section>
+
+    <section class="table-wrapper" id="favoritesSection">
+      <div class="section-title-row">
+        <h2>チェックしたチームのマイタイムテーブル</h2>
+        <span class="count-pill" id="favCount">選択 0 件</span>
+      </div>
+      <p class="small-note">※ 行の色は上と同じ時間帯区分（〜11:59 朝／12:00〜14:59 昼／15:00〜 夕〜ラスト）です。</p>
+      <div id="favoritesWrapper"></div>
+    </section>
+  </main>
+
+  <script>
+const EVENTS = [
+  {
+    id: 1000,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第1会場 公園線 北会場",
+    start: "9:50",
+    end: "",
+    group: "MAIYA",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1001,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第1会場 公園線 北会場",
+    start: "9:55",
+    end: "",
+    group: "バサラ瑞浪",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1002,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第1会場 公園線 北会場",
+    start: "10:00",
+    end: "",
+    group: "バサラ瑞浪限定OP",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1003,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第1会場 公園線 北会場",
+    start: "10:05",
+    end: "",
+    group: "早稲田大学お祭り連 東京踊りっぱーず",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1004,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第1会場 公園線 北会場",
+    start: "10:10",
+    end: "",
+    group: "パルクルム",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1005,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第1会場 公園線 北会場",
+    start: "10:15",
+    end: "",
+    group: "LUMINA",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1006,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第1会場 公園線 北会場",
+    start: "10:20",
+    end: "",
+    group: "2025いち期一会",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1007,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第1会場 公園線 北会場",
+    start: "10:25",
+    end: "",
+    group: "Twilight☆",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1008,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第1会場 公園線 北会場",
+    start: "10:30",
+    end: "",
+    group: "虎兎",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1009,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第1会場 公園線 北会場",
+    start: "10:35",
+    end: "",
+    group: "怒呑波",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1010,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第1会場 公園線 北会場",
+    start: "10:40",
+    end: "",
+    group: "錦翔天華",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1011,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第1会場 公園線 北会場",
+    start: "10:45",
+    end: "",
+    group: "総踊り",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1012,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第1会場 公園線 北会場",
+    start: "10:50",
+    end: "",
+    group: "総踊り",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1013,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第1会場 公園線 北会場",
+    start: "10:55",
+    end: "",
+    group: "総踊り",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1014,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第1会場 公園線 北会場",
+    start: "11:00",
+    end: "",
+    group: "気楽奇乱",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1015,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第1会場 公園線 北会場",
+    start: "11:05",
+    end: "",
+    group: "YOSABOYS",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1016,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第1会場 公園線 北会場",
+    start: "11:10",
+    end: "",
+    group: "ずうっとキラキラ",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1017,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第1会場 公園線 北会場",
+    start: "11:15",
+    end: "",
+    group: "MADANI",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1018,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第1会場 公園線 北会場",
+    start: "11:20",
+    end: "",
+    group: "かさーず2025",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1019,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第1会場 公園線 北会場",
+    start: "11:25",
+    end: "",
+    group: "曽木紅葉",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1020,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第1会場 公園線 北会場",
+    start: "11:30",
+    end: "",
+    group: "上鳥羽学生連「リロード」",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1021,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第1会場 公園線 北会場",
+    start: "11:35",
+    end: "",
+    group: "KAGURA ZIPPER",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1022,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第1会場 公園線 北会場",
+    start: "11:40",
+    end: "",
+    group: "総踊り",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1023,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第1会場 公園線 北会場",
+    start: "11:45",
+    end: "",
+    group: "総踊り",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1024,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第1会場 公園線 北会場",
+    start: "11:50",
+    end: "",
+    group: "総踊り",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1025,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第1会場 公園線 北会場",
+    start: "11:55",
+    end: "",
+    group: "総踊り",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1026,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第1会場 公園線 北会場",
+    start: "12:00",
+    end: "",
+    group: "覇砂羅",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1027,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第1会場 公園線 北会場",
+    start: "12:05",
+    end: "",
+    group: "岐阜大学騒屋",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1028,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第1会場 公園線 北会場",
+    start: "12:10",
+    end: "",
+    group: "Yakumoichiza",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1029,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第1会場 公園線 北会場",
+    start: "12:15",
+    end: "",
+    group: "夜宵",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1030,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第1会場 公園線 北会場",
+    start: "12:20",
+    end: "",
+    group: "総踊り",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1031,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第1会場 公園線 北会場",
+    start: "12:25",
+    end: "",
+    group: "総踊り",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1032,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第1会場 公園線 北会場",
+    start: "12:30",
+    end: "",
+    group: "総踊り",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1033,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第1会場 公園線 北会場",
+    start: "12:35",
+    end: "",
+    group: "総踊り",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1034,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第1会場 公園線 北会場",
+    start: "12:40",
+    end: "",
+    group: "縁志",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1035,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第1会場 公園線 北会場",
+    start: "12:45",
+    end: "",
+    group: "神戸学生よさこいチーム奏",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1036,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第1会場 公園線 北会場",
+    start: "12:50",
+    end: "",
+    group: "京炎 それふれ！ 心舞踊",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1037,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第1会場 公園線 北会場",
+    start: "12:55",
+    end: "",
+    group: "津凪 -tsunagi-",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1038,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第1会場 公園線 北会場",
+    start: "13:00",
+    end: "",
+    group: "半布里",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1039,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第1会場 公園線 北会場",
+    start: "13:05",
+    end: "",
+    group: "嘉們-KAMON-",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1040,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第1会場 公園線 北会場",
+    start: "13:10",
+    end: "",
+    group: "笑”",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1041,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第1会場 公園線 北会場",
+    start: "13:15",
+    end: "",
+    group: "MAD Damilies",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1042,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第1会場 公園線 北会場",
+    start: "13:20",
+    end: "",
+    group: "中興孤高「リベラルアーツ」",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1043,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第1会場 公園線 北会場",
+    start: "13:25",
+    end: "",
+    group: "総踊り",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1044,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第1会場 公園線 北会場",
+    start: "13:30",
+    end: "",
+    group: "総踊り",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1045,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第1会場 公園線 北会場",
+    start: "14:40",
+    end: "",
+    group: "岐阜聖徳学園大学 柳",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1046,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第1会場 公園線 北会場",
+    start: "14:45",
+    end: "",
+    group: "心纏い",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1047,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第1会場 公園線 北会場",
+    start: "14:50",
+    end: "",
+    group: "中京高校体育class「love kids」",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1048,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第1会場 公園線 北会場",
+    start: "14:55",
+    end: "",
+    group: "北海道大学 縁”",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1049,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第1会場 公園線 北会場",
+    start: "15:00",
+    end: "",
+    group: "中京大学「ALL STARS」",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1050,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第1会場 公園線 北会場",
+    start: "15:05",
+    end: "",
+    group: "バサラ瑞浪",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1051,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第1会場 公園線 北会場",
+    start: "15:10",
+    end: "",
+    group: "MAIYA",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1052,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第2会場 公園線 中央会場",
+    start: "10:20",
+    end: "",
+    group: "弥栄社丹",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1053,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第2会場 公園線 中央会場",
+    start: "10:25",
+    end: "",
+    group: "日本福祉大学 夢人党",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1054,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第2会場 公園線 中央会場",
+    start: "10:30",
+    end: "",
+    group: "アラフォーの会",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1055,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第2会場 公園線 中央会場",
+    start: "10:35",
+    end: "",
+    group: "響艶",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1056,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第2会場 公園線 中央会場",
+    start: "10:40",
+    end: "",
+    group: "アクティブ大曽根",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1057,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第2会場 公園線 中央会場",
+    start: "10:45",
+    end: "",
+    group: "むくう",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1058,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第2会場 公園線 中央会場",
+    start: "10:50",
+    end: "",
+    group: "総踊り",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1059,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第2会場 公園線 中央会場",
+    start: "10:55",
+    end: "",
+    group: "総踊り",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1060,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第2会場 公園線 中央会場",
+    start: "11:00",
+    end: "",
+    group: "おにぎりっぺ",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1061,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第2会場 公園線 中央会場",
+    start: "11:05",
+    end: "",
+    group: "駆気乱",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1062,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第2会場 公園線 中央会場",
+    start: "11:10",
+    end: "",
+    group: "達磨-DaLuMa-",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1063,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第2会場 公園線 中央会場",
+    start: "11:15",
+    end: "",
+    group: "いづる -Izul-",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1064,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第2会場 公園線 中央会場",
+    start: "11:20",
+    end: "",
+    group: "白髪魂",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1065,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第2会場 公園線 中央会場",
+    start: "11:25",
+    end: "",
+    group: "総踊り",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1066,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第2会場 公園線 中央会場",
+    start: "11:30",
+    end: "",
+    group: "総踊り",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1067,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第2会場 公園線 中央会場",
+    start: "11:35",
+    end: "",
+    group: "総踊り",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1068,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第2会場 公園線 中央会場",
+    start: "11:40",
+    end: "",
+    group: "総踊り",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1069,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第2会場 公園線 中央会場",
+    start: "11:45",
+    end: "",
+    group: "バサラ瑞浪指導部地方足袋ダンサーズ",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1070,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第2会場 公園線 中央会場",
+    start: "11:50",
+    end: "",
+    group: "宴屋",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1071,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第2会場 公園線 中央会場",
+    start: "11:55",
+    end: "",
+    group: "竜宝爛漫",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1072,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第2会場 公園線 中央会場",
+    start: "12:00",
+    end: "",
+    group: "豊山町よさこいチーム仁～hito＝",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1073,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第2会場 公園線 中央会場",
+    start: "12:05",
+    end: "",
+    group: "刈谷魁",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1074,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第2会場 公園線 中央会場",
+    start: "12:10",
+    end: "",
+    group: "勝山組",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1075,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第2会場 公園線 中央会場",
+    start: "12:15",
+    end: "",
+    group: "reunion (リユニオン)",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1076,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第2会場 公園線 中央会場",
+    start: "12:20",
+    end: "",
+    group: "東宝踊々夢 リバイバル2013",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1077,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第2会場 公園線 中央会場",
+    start: "12:25",
+    end: "",
+    group: "よさこい総踊りチーム紡縁華",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1078,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第2会場 公園線 中央会場",
+    start: "12:30",
+    end: "",
+    group: "総踊り",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1079,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第2会場 公園線 中央会場",
+    start: "12:35",
+    end: "",
+    group: "総踊り",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1080,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第2会場 公園線 中央会場",
+    start: "12:40",
+    end: "",
+    group: "総踊り",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1081,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第2会場 公園線 中央会場",
+    start: "12:45",
+    end: "",
+    group: "総踊り",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1082,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第2会場 公園線 中央会場",
+    start: "12:50",
+    end: "",
+    group: "ピーマンサンバ",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1083,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第2会場 公園線 中央会場",
+    start: "12:55",
+    end: "",
+    group: "遊戯～YUGE～",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1084,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第2会場 公園線 中央会場",
+    start: "13:00",
+    end: "",
+    group: "鳴子ぅ舞",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1085,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第2会場 公園線 中央会場",
+    start: "13:05",
+    end: "",
+    group: "せんとれ～TOKONAME",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1086,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第2会場 公園線 中央会場",
+    start: "13:10",
+    end: "",
+    group: "関東どまつりチーム轟",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1087,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第2会場 公園線 中央会場",
+    start: "13:15",
+    end: "",
+    group: "しなの大和",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1088,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第2会場 公園線 中央会場",
+    start: "13:20",
+    end: "",
+    group: "総踊り",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1089,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第2会場 公園線 中央会場",
+    start: "13:25",
+    end: "",
+    group: "総踊り",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1090,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第2会場 公園線 中央会場",
+    start: "13:30",
+    end: "",
+    group: "総踊り",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1091,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第2会場 公園線 中央会場",
+    start: "13:35",
+    end: "",
+    group: "総踊り",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1092,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第2会場 公園線 中央会場",
+    start: "13:40",
+    end: "",
+    group: "Meetiα",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1093,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第2会場 公園線 中央会場",
+    start: "13:45",
+    end: "",
+    group: "ちゃわん娘",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1094,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第2会場 公園線 中央会場",
+    start: "13:50",
+    end: "",
+    group: "あぐい騰",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1095,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第2会場 公園線 中央会場",
+    start: "13:55",
+    end: "",
+    group: "鳥舞",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1096,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第2会場 公園線 中央会場",
+    start: "14:00",
+    end: "",
+    group: "歓喜団",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1100,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第3会場 公園線 南会場",
+    start: "10:20",
+    end: "",
+    group: "kagura",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1101,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第3会場 公園線 南会場",
+    start: "10:25",
+    end: "",
+    group: "信州大学YOSAKOI祭りサークル 和っしょい",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1102,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第3会場 公園線 南会場",
+    start: "10:30",
+    end: "",
+    group: "関学よさこい連 炎流",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1103,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第3会場 公園線 南会場",
+    start: "10:35",
+    end: "",
+    group: "かもん",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1104,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第3会場 公園線 南会場",
+    start: "10:40",
+    end: "",
+    group: "四季舞",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1105,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第3会場 公園線 南会場",
+    start: "10:45",
+    end: "",
+    group: "海ノ座",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1106,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第3会場 公園線 南会場",
+    start: "10:50",
+    end: "",
+    group: "総踊り",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1107,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第3会場 公園線 南会場",
+    start: "10:55",
+    end: "",
+    group: "総踊り",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1108,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第3会場 公園線 南会場",
+    start: "11:00",
+    end: "",
+    group: "総踊り",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1109,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第3会場 公園線 南会場",
+    start: "11:05",
+    end: "",
+    group: "16代目お茶ノ子祭々",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1110,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第3会場 公園線 南会場",
+    start: "11:10",
+    end: "",
+    group: "名古屋大学 ”快踊乱舞”",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1111,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第3会場 公園線 南会場",
+    start: "11:15",
+    end: "",
+    group: "中京高校「サプライズ」",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1112,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第3会場 公園線 南会場",
+    start: "11:20",
+    end: "",
+    group: "彩ノ京-ハナノミヤコ-",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1113,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第3会場 公園線 南会場",
+    start: "11:25",
+    end: "",
+    group: "中京大学晴地舞",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1114,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第3会場 公園線 南会場",
+    start: "11:30",
+    end: "",
+    group: "総踊り",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1115,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第3会場 公園線 南会場",
+    start: "11:35",
+    end: "",
+    group: "総踊り",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1116,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第3会場 公園線 南会場",
+    start: "11:40",
+    end: "",
+    group: "総踊り",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1117,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第3会場 公園線 南会場",
+    start: "11:45",
+    end: "",
+    group: "名古屋学生チーム「鯱」",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1118,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第3会場 公園線 南会場",
+    start: "11:50",
+    end: "",
+    group: "カバヤキーズ",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1119,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第3会場 公園線 南会場",
+    start: "11:55",
+    end: "",
+    group: "龍谷大学華舞龍",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1120,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第3会場 公園線 南会場",
+    start: "12:00",
+    end: "",
+    group: "京炎そでふれ！ おどりっつ",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1121,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第3会場 公園線 南会場",
+    start: "12:05",
+    end: "",
+    group: "京都よさこい連 心粋",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1122,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第3会場 公園線 南会場",
+    start: "12:10",
+    end: "",
+    group: "大阪大学お祭りダンスサークル祭楽人",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1123,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第3会場 公園線 南会場",
+    start: "13:30",
+    end: "",
+    group: "笠寺一理",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1124,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第3会場 公園線 南会場",
+    start: "13:35",
+    end: "",
+    group: "半布里Jr.",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1125,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第3会場 公園線 南会場",
+    start: "13:40",
+    end: "",
+    group: "天狗ぅ",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1126,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第3会場 公園線 南会場",
+    start: "13:45",
+    end: "",
+    group: "笑舞",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1127,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第3会場 公園線 南会場",
+    start: "13:50",
+    end: "",
+    group: "中京高校「ATHLETE」",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1128,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第3会場 公園線 南会場",
+    start: "13:55",
+    end: "",
+    group: "神楽",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1129,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第3会場 公園線 南会場",
+    start: "14:00",
+    end: "",
+    group: "よさこいチームかざみどり",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1130,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第3会場 公園線 南会場",
+    start: "14:05",
+    end: "",
+    group: "八雲一座",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1131,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第3会場 公園線 南会場",
+    start: "14:10",
+    end: "",
+    group: "常笑",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1135,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第4会場 浪花駐車場会場",
+    start: "10:20",
+    end: "",
+    group: "神楽",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1136,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第4会場 浪花駐車場会場",
+    start: "10:25",
+    end: "",
+    group: "絆百祭",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1137,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第4会場 浪花駐車場会場",
+    start: "10:30",
+    end: "",
+    group: "心笑",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1138,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第4会場 浪花駐車場会場",
+    start: "10:35",
+    end: "",
+    group: "かもん",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1139,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第4会場 浪花駐車場会場",
+    start: "10:40",
+    end: "",
+    group: "江南よさこれ蓮～kohga～",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1140,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第4会場 浪花駐車場会場",
+    start: "10:45",
+    end: "",
+    group: "心纏い2021",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1141,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第4会場 浪花駐車場会場",
+    start: "10:50",
+    end: "",
+    group: "祭遊旗",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1142,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第4会場 浪花駐車場会場",
+    start: "10:55",
+    end: "",
+    group: "総踊り",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1143,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第4会場 浪花駐車場会場",
+    start: "11:00",
+    end: "",
+    group: "総踊り",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1144,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第4会場 浪花駐車場会場",
+    start: "11:15",
+    end: "",
+    group: "傾起 花彩",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1145,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第4会場 浪花駐車場会場",
+    start: "11:20",
+    end: "",
+    group: "凰",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1146,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第4会場 浪花駐車場会場",
+    start: "11:25",
+    end: "",
+    group: "夢色歌留多",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1147,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第4会場 浪花駐車場会場",
+    start: "11:30",
+    end: "",
+    group: "あらわ",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1148,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第4会場 浪花駐車場会場",
+    start: "11:35",
+    end: "",
+    group: "飃〜FREEDOM〜",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1149,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第4会場 浪花駐車場会場",
+    start: "11:40",
+    end: "",
+    group: "いりゃあせ南都",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1150,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第4会場 浪花駐車場会場",
+    start: "11:45",
+    end: "",
+    group: "京都文教大学 風竜舞伝",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1151,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第4会場 浪花駐車場会場",
+    start: "11:50",
+    end: "",
+    group: "KanoN",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1152,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第4会場 浪花駐車場会場",
+    start: "11:55",
+    end: "",
+    group: "三重ソーラン隊かもめ",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1153,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第4会場 浪花駐車場会場",
+    start: "12:20",
+    end: "",
+    group: "京炎そでふれ！Tacchi",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1154,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第4会場 浪花駐車場会場",
+    start: "12:25",
+    end: "",
+    group: "京炎そでふれ！咲産華",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1155,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第4会場 浪花駐車場会場",
+    start: "12:30",
+    end: "",
+    group: "咲くやこの花",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1156,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第4会場 浪花駐車場会場",
+    start: "12:35",
+    end: "",
+    group: "大阪公立大学 朱蘭",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1157,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第4会場 浪花駐車場会場",
+    start: "12:40",
+    end: "",
+    group: "浜松学生連 鰻陀羅",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1158,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第4会場 浪花駐車場会場",
+    start: "13:05",
+    end: "",
+    group: "キズナヒャクサイ",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1159,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第4会場 浪花駐車場会場",
+    start: "13:10",
+    end: "",
+    group: "まつり拍子！！",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1160,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第4会場 浪花駐車場会場",
+    start: "13:15",
+    end: "",
+    group: "岡山うらじゃ連蓮雫",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1161,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第4会場 浪花駐車場会場",
+    start: "13:20",
+    end: "",
+    group: "百華夢想大阪・瀬戸内支部",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1162,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第4会場 浪花駐車場会場",
+    start: "13:25",
+    end: "",
+    group: "どっと",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1163,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第4会場 浪花駐車場会場",
+    start: "13:45",
+    end: "",
+    group: "愛知教育大学「鳴踊」",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1164,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第4会場 浪花駐車場会場",
+    start: "13:50",
+    end: "",
+    group: "No styles",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1165,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第4会場 浪花駐車場会場",
+    start: "13:55",
+    end: "",
+    group: "傾起 蒼の魂同",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1166,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第4会場 浪花駐車場会場",
+    start: "14:00",
+    end: "",
+    group: "近畿大学 洗心",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1167,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第4会場 浪花駐車場会場",
+    start: "14:05",
+    end: "",
+    group: "拍哶-hakubi-",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1168,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第4会場 浪花駐車場会場",
+    start: "14:10",
+    end: "",
+    group: "一粋",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1196,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第4会場 浪花駐車場会場",
+    start: "12:25",
+    end: "",
+    group: "信州駒ヶ根縁舞連",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1197,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第4会場 浪花駐車場会場",
+    start: "12:30",
+    end: "",
+    group: "佛教大学よさこいサークル 紫踊屋",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1198,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第4会場 浪花駐車場会場",
+    start: "12:35",
+    end: "",
+    group: "チーム覇王",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1199,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第4会場 浪花駐車場会場",
+    start: "12:40",
+    end: "",
+    group: "傾奇屋",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1200,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第4会場 浪花駐車場会場",
+    start: "12:45",
+    end: "",
+    group: "T4O",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1201,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第4会場 浪花駐車場会場",
+    start: "12:50",
+    end: "",
+    group: "ユズリハ",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1211,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "U-15選手権",
+    start: "10:30",
+    end: "",
+    group: "三重ソーラン隊かもめ",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1212,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "U-15選手権",
+    start: "10:35",
+    end: "",
+    group: "関東どまつりチーム轟",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1213,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "U-15選手権",
+    start: "10:40",
+    end: "",
+    group: "鳳仙華",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1214,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "U-15選手権",
+    start: "10:45",
+    end: "",
+    group: "ひなら",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1215,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "U-15選手権",
+    start: "10:50",
+    end: "",
+    group: "あるを尽くす",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1216,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "U-15選手権",
+    start: "10:55",
+    end: "",
+    group: "刈谷魁",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1217,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "U-15選手権",
+    start: "11:00",
+    end: "",
+    group: "あぐい騰",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1218,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "U-15選手権",
+    start: "11:05",
+    end: "",
+    group: "信州駒ヶ根縁舞連",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1219,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "U-15選手権",
+    start: "12:30",
+    end: "",
+    group: "弥栄社丹",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1220,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "U-15選手権",
+    start: "12:35",
+    end: "",
+    group: "ちゃわん娘",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1221,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "U-15選手権",
+    start: "12:40",
+    end: "",
+    group: "梅波冴",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1222,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "U-15選手権",
+    start: "12:45",
+    end: "",
+    group: "ツッパリカーニバルズ",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1223,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "U-15選手権",
+    start: "12:50",
+    end: "",
+    group: "響艶",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1224,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "U-15選手権",
+    start: "12:55",
+    end: "",
+    group: "歓喜団",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1225,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "U-15選手権",
+    start: "13:00",
+    end: "",
+    group: "16代目お茶ノ子祭々",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1226,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "U-15選手権",
+    start: "13:05",
+    end: "",
+    group: "絆百祭",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1279,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第5会場 駅前会場",
+    start: "10:10",
+    end: "",
+    group: "総踊り",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1280,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第5会場 駅前会場",
+    start: "10:15",
+    end: "",
+    group: "総踊り",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1281,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第5会場 駅前会場",
+    start: "10:20",
+    end: "",
+    group: "バサラ瑞浪",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1282,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第5会場 駅前会場",
+    start: "10:25",
+    end: "",
+    group: "中京高校「チアリーダー」",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1283,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第5会場 駅前会場",
+    start: "10:30",
+    end: "",
+    group: "U15選手権",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1284,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第5会場 駅前会場",
+    start: "10:35",
+    end: "",
+    group: "U15選手権",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1285,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第5会場 駅前会場",
+    start: "10:40",
+    end: "",
+    group: "U15選手権",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1286,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第5会場 駅前会場",
+    start: "10:45",
+    end: "",
+    group: "U15選手権",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1287,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第5会場 駅前会場",
+    start: "10:50",
+    end: "",
+    group: "U15選手権",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1288,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第5会場 駅前会場",
+    start: "10:55",
+    end: "",
+    group: "U15選手権",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1289,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第5会場 駅前会場",
+    start: "11:00",
+    end: "",
+    group: "U15選手権",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1290,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第5会場 駅前会場",
+    start: "11:05",
+    end: "",
+    group: "投げ入れタイム",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1291,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第5会場 駅前会場",
+    start: "11:10",
+    end: "",
+    group: "投げ入れタイム",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1292,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第5会場 駅前会場",
+    start: "11:15",
+    end: "",
+    group: "投げ入れタイム",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1293,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第5会場 駅前会場",
+    start: "11:20",
+    end: "",
+    group: "投げ入れタイム",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1294,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第5会場 駅前会場",
+    start: "11:25",
+    end: "",
+    group: "投げ入れタイム",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1295,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第5会場 駅前会場",
+    start: "11:30",
+    end: "",
+    group: "投げ入れタイム",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1296,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第5会場 駅前会場",
+    start: "11:35",
+    end: "",
+    group: "投げ入れタイム",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1297,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第5会場 駅前会場",
+    start: "11:40",
+    end: "",
+    group: "投げ入れタイム",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1298,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第5会場 駅前会場",
+    start: "11:45",
+    end: "",
+    group: "投げ入れタイム",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1299,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第5会場 駅前会場",
+    start: "11:50",
+    end: "",
+    group: "投げ入れタイム",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1300,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第5会場 駅前会場",
+    start: "11:55",
+    end: "",
+    group: "投げ入れタイム",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1301,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第5会場 駅前会場",
+    start: "12:00",
+    end: "",
+    group: "投げ入れタイム",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1302,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第5会場 駅前会場",
+    start: "12:05",
+    end: "",
+    group: "投げ入れタイム",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1303,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第5会場 駅前会場",
+    start: "12:10",
+    end: "",
+    group: "投げ入れタイム",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1304,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第5会場 駅前会場",
+    start: "12:15",
+    end: "",
+    group: "投げ入れタイム",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1305,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第5会場 駅前会場",
+    start: "12:20",
+    end: "",
+    group: "投げ入れタイム",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1306,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第5会場 駅前会場",
+    start: "12:25",
+    end: "",
+    group: "投げ入れタイム",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1307,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第5会場 駅前会場",
+    start: "12:30",
+    end: "",
+    group: "U15選手権",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1308,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第5会場 駅前会場",
+    start: "12:35",
+    end: "",
+    group: "U15選手権",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1309,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第5会場 駅前会場",
+    start: "12:40",
+    end: "",
+    group: "U15選手権",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1310,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第5会場 駅前会場",
+    start: "12:45",
+    end: "",
+    group: "U15選手権",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1311,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第5会場 駅前会場",
+    start: "12:50",
+    end: "",
+    group: "U15選手権",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1312,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第5会場 駅前会場",
+    start: "12:55",
+    end: "",
+    group: "U15選手権",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1313,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第5会場 駅前会場",
+    start: "13:00",
+    end: "",
+    group: "U15選手権",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1314,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第5会場 駅前会場",
+    start: "13:05",
+    end: "",
+    group: "U15選手権",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1315,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第5会場 駅前会場",
+    start: "13:10",
+    end: "",
+    group: "U15選手権",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1316,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第5会場 駅前会場",
+    start: "13:15",
+    end: "",
+    group: "U15選手権",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1317,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第5会場 駅前会場",
+    start: "13:20",
+    end: "",
+    group: "U15選手権",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1318,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第5会場 駅前会場",
+    start: "13:25",
+    end: "",
+    group: "U15選手権",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1319,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第5会場 駅前会場",
+    start: "13:30",
+    end: "",
+    group: "18代目 鳴踊",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1320,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第5会場 駅前会場",
+    start: "13:35",
+    end: "",
+    group: "あるを尽くす",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1321,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第5会場 駅前会場",
+    start: "13:40",
+    end: "",
+    group: "山三本舗",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1322,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第5会場 駅前会場",
+    start: "13:45",
+    end: "",
+    group: "癸-mizunoto-",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1323,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第5会場 駅前会場",
+    start: "13:50",
+    end: "",
+    group: "よさこい炎舞連「神陽～Sin～」",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1324,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第5会場 駅前会場",
+    start: "13:55",
+    end: "",
+    group: "バサラ瑞浪指導部 チャイナドールズ",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1325,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第5会場 駅前会場",
+    start: "14:00",
+    end: "",
+    group: "中京高校体育class「love kids」",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1326,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第5会場 駅前会場",
+    start: "14:05",
+    end: "",
+    group: "ひなた",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1327,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第5会場 駅前会場",
+    start: "14:10",
+    end: "",
+    group: "総踊り",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1328,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第5会場 駅前会場",
+    start: "14:15",
+    end: "",
+    group: "総踊り",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1329,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第5会場 駅前会場",
+    start: "14:20",
+    end: "",
+    group: "総踊り",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1330,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第5会場 駅前会場",
+    start: "14:25",
+    end: "",
+    group: "総踊り",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1331,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第6会場 ときわ第1Ｐ会場",
+    start: "10:10",
+    end: "",
+    group: "総踊り",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1332,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第6会場 ときわ第1Ｐ会場",
+    start: "10:15",
+    end: "",
+    group: "総踊り",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1333,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第6会場 ときわ第1Ｐ会場",
+    start: "10:20",
+    end: "",
+    group: "総踊り",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1334,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第6会場 ときわ第1Ｐ会場",
+    start: "10:25",
+    end: "",
+    group: "煙陣",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1335,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第6会場 ときわ第1Ｐ会場",
+    start: "10:30",
+    end: "",
+    group: "祠音-shinon-",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1336,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第6会場 ときわ第1Ｐ会場",
+    start: "10:35",
+    end: "",
+    group: "鷹姫ouki",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1337,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第6会場 ときわ第1Ｐ会場",
+    start: "10:40",
+    end: "",
+    group: "Happy friends",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1338,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第6会場 ときわ第1Ｐ会場",
+    start: "10:45",
+    end: "",
+    group: "ツッパリカーニバルズ",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1339,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第6会場 ときわ第1Ｐ会場",
+    start: "10:50",
+    end: "",
+    group: "瀬戸 陶龍門",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1340,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第6会場 ときわ第1Ｐ会場",
+    start: "10:55",
+    end: "",
+    group: "たお",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1341,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第6会場 ときわ第1Ｐ会場",
+    start: "11:00",
+    end: "",
+    group: "東方JOJO夢",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1342,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第6会場 ときわ第1Ｐ会場",
+    start: "11:05",
+    end: "",
+    group: "総踊り",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1343,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第6会場 ときわ第1Ｐ会場",
+    start: "11:10",
+    end: "",
+    group: "総踊り",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1344,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第6会場 ときわ第1Ｐ会場",
+    start: "11:15",
+    end: "",
+    group: "総踊り",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1345,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第6会場 ときわ第1Ｐ会場",
+    start: "11:20",
+    end: "",
+    group: "総踊り",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1346,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第6会場 ときわ第1Ｐ会場",
+    start: "11:25",
+    end: "",
+    group: "総踊り",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1347,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第6会場 ときわ第1Ｐ会場",
+    start: "11:30",
+    end: "",
+    group: "Frosty Candy",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1348,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第6会場 ときわ第1Ｐ会場",
+    start: "11:35",
+    end: "",
+    group: "FURI☆FURI",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1349,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第6会場 ときわ第1Ｐ会場",
+    start: "11:40",
+    end: "",
+    group: "hakubi-拍哶-",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1350,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第6会場 ときわ第1Ｐ会場",
+    start: "11:45",
+    end: "",
+    group: "ダンシング破王一",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1351,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第6会場 ときわ第1Ｐ会場",
+    start: "11:50",
+    end: "",
+    group: "総踊連合 神舞",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1352,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第6会場 ときわ第1Ｐ会場",
+    start: "11:55",
+    end: "",
+    group: "総踊り",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1353,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第6会場 ときわ第1Ｐ会場",
+    start: "12:00",
+    end: "",
+    group: "総踊り",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1354,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第6会場 ときわ第1Ｐ会場",
+    start: "12:05",
+    end: "",
+    group: "総踊り",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1355,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第6会場 ときわ第1Ｐ会場",
+    start: "12:10",
+    end: "",
+    group: "総踊り",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1356,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第6会場 ときわ第1Ｐ会場",
+    start: "12:15",
+    end: "",
+    group: "BOT",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1357,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第6会場 ときわ第1Ｐ会場",
+    start: "12:20",
+    end: "",
+    group: "鳳仙華",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1358,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第6会場 ときわ第1Ｐ会場",
+    start: "12:25",
+    end: "",
+    group: "煌☆",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1359,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第6会場 ときわ第1Ｐ会場",
+    start: "12:30",
+    end: "",
+    group: "信州駒ヶ根縁舞連",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1360,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第6会場 ときわ第1Ｐ会場",
+    start: "12:35",
+    end: "",
+    group: "佛教大学よさこいサークル 紫踊屋",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1361,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第6会場 ときわ第1Ｐ会場",
+    start: "12:40",
+    end: "",
+    group: "チーム覇王",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1362,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第6会場 ときわ第1Ｐ会場",
+    start: "12:45",
+    end: "",
+    group: "傾奇屋",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1363,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第6会場 ときわ第1Ｐ会場",
+    start: "12:50",
+    end: "",
+    group: "T4O",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1364,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第6会場 ときわ第1Ｐ会場",
+    start: "12:55",
+    end: "",
+    group: "ユズリハ",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1365,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第6会場 ときわ第1Ｐ会場",
+    start: "13:00",
+    end: "",
+    group: "総踊り",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1366,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第6会場 ときわ第1Ｐ会場",
+    start: "13:05",
+    end: "",
+    group: "総踊り",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1367,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第6会場 ときわ第1Ｐ会場",
+    start: "13:10",
+    end: "",
+    group: "総踊り",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1368,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第6会場 ときわ第1Ｐ会場",
+    start: "13:15",
+    end: "",
+    group: "総踊り",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1369,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第6会場 ときわ第1Ｐ会場",
+    start: "13:20",
+    end: "",
+    group: "椙山よさこい鳴子踊りチーム",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1370,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第6会場 ときわ第1Ｐ会場",
+    start: "13:25",
+    end: "",
+    group: "絆∞Line",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1371,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第6会場 ときわ第1Ｐ会場",
+    start: "13:30",
+    end: "",
+    group: "チーム かおりん",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1372,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第6会場 ときわ第1Ｐ会場",
+    start: "13:35",
+    end: "",
+    group: "知多きらく",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1373,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第6会場 ときわ第1Ｐ会場",
+    start: "13:40",
+    end: "",
+    group: "一華 -Ikka-",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1374,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第6会場 ときわ第1Ｐ会場",
+    start: "13:45",
+    end: "",
+    group: "手話っち乱舞隊 BreakThrough",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1375,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第6会場 ときわ第1Ｐ会場",
+    start: "13:50",
+    end: "",
+    group: "梅波冴",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1376,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第6会場 ときわ第1Ｐ会場",
+    start: "13:55",
+    end: "",
+    group: "御握り団。",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1377,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第6会場 ときわ第1Ｐ会場",
+    start: "14:00",
+    end: "",
+    group: "よさこい塾・ありがた屋",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1378,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第6会場 ときわ第1Ｐ会場",
+    start: "14:05",
+    end: "",
+    group: "総踊り",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1379,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第6会場 ときわ第1Ｐ会場",
+    start: "14:10",
+    end: "",
+    group: "総踊り",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1380,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第6会場 ときわ第1Ｐ会場",
+    start: "14:15",
+    end: "",
+    group: "総踊り",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1381,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第6会場 ときわ第1Ｐ会場",
+    start: "14:20",
+    end: "",
+    group: "総踊り",
+    title: "",
+    note: "",
+  },
+  {
+    id: 1382,
+    day: "本祭",
+    date: "2025-12-14",
+    stage: "第6会場 ときわ第1Ｐ会場",
+    start: "14:25",
+    end: "",
+    group: "総踊り",
+    title: "",
+    note: "",
+  },
+];
+
+    const $keyword = document.getElementById("keyword");
+    const $stage = document.getElementById("stage");
+    const $countInfo = document.getElementById("countInfo");
+    const $resultsWrapper = document.getElementById("resultsWrapper");
+    const $resetBtn = document.getElementById("resetBtn");
+    const $favoritesWrapper = document.getElementById("favoritesWrapper");
+    const $favCount = document.getElementById("favCount");
+
+    let selectedIds = new Set();
+
+    function loadSelected() {
+      try {
+        const raw = localStorage.getItem("basaraSelectedIds") || "[]";
+        const arr = JSON.parse(raw);
+        if (Array.isArray(arr)) {
+          selectedIds = new Set(arr.map(Number));
+        }
+      } catch (e) {
+        selectedIds = new Set();
+      }
+    }
+
+    function saveSelected() {
+      const arr = Array.from(selectedIds);
+      try {
+        localStorage.setItem("basaraSelectedIds", JSON.stringify(arr));
+      } catch (e) {
+        // ignore
+      }
+    }
+
+    function getBandClass(timeStr) {
+      if (!timeStr) return "";
+      const [hStr, mStr] = timeStr.split(":");
+      const h = parseInt(hStr, 10);
+      if (isNaN(h)) return "";
+      if (h < 12) return "band-morning";
+      if (h < 15) return "band-noon";
+      return "band-evening";
+    }
+
+    function applyFilters() {
+      const keyword = $keyword.value.trim().toLowerCase();
+      const stage = $stage.value;
+
+      let base = EVENTS;
+
+      if (stage === "__FAV__") {
+        base = EVENTS.filter(ev => selectedIds.has(ev.id));
+      } else if (stage) {
+        base = EVENTS.filter(ev => ev.stage === stage);
+      }
+
+      const filtered = base.filter((ev) => {
+        if (keyword) {
+          const text = `${ev.group} ${ev.title} ${ev.note} ${ev.stage} ${ev.day}`.toLowerCase();
+          if (!text.includes(keyword)) return false;
+        }
+        return true;
+      });
+
+      renderTable(filtered);
+    }
+
+    function attachCheckboxHandlers() {
+      const checkboxes = document.querySelectorAll(".fav-checkbox");
+      checkboxes.forEach(cb => {
+        cb.addEventListener("change", (e) => {
+          const id = Number(e.target.dataset.id);
+          if (e.target.checked) {
+            selectedIds.add(id);
+          } else {
+            selectedIds.delete(id);
+          }
+          saveSelected();
+          renderFavorites();
+        });
+      });
+    }
+
+    function renderTable(events) {
+      if (!events.length) {
+        $resultsWrapper.innerHTML =
+          '<div class="empty">条件に合うステージが見つかりませんでした。</div>';
+        $countInfo.textContent = "全 0 件";
+        return;
+      }
+
+      $countInfo.textContent = `全 ${events.length} 件`;
+
+      const sorted = [...events].sort((a, b) => {
+        if (a.stage === b.stage) {
+          if (a.date === b.date) {
+            return a.start.localeCompare(b.start);
+          }
+          return a.date.localeCompare(b.date);
+        }
+        return a.stage.localeCompare(b.stage, "ja");
+      });
+
+      const rowsHtml = sorted
+        .map(ev => {
+          const checkedAttr = selectedIds.has(ev.id) ? " checked" : "";
+          const bandClass = getBandClass(ev.start);
+          return `
+          <tr class="${bandClass}">
+            <td class="fav-col">
+              <input type="checkbox" class="fav-checkbox" data-id="${ev.id}"${checkedAttr} />
+            </td>
+            <td>
+              <span class="badge-day">${ev.day}</span><br />
+              <span style="font-size:0.75rem; color:#888;">${ev.date}</span>
+            </td>
+            <td>${ev.start}〜${ev.end || ""}</td>
+            <td><span class="badge-stage">${ev.stage}</span></td>
+            <td>${ev.group}</td>
+            <td>${ev.title || ""}</td>
+            <td class="note">${ev.note || ""}</td>
+          </tr>
+        `;
+        })
+        .join("");
+
+      const tableHtml = `
+        <table>
+          <thead>
+            <tr>
+              <th class="fav-col">選択</th>
+              <th>日程</th>
+              <th>時間</th>
+              <th>会場</th>
+              <th>チーム</th>
+              <th>演目</th>
+              <th>備考</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rowsHtml}
+          </tbody>
+        </table>
+      `;
+
+      $resultsWrapper.innerHTML = tableHtml;
+      attachCheckboxHandlers();
+    }
+
+    function renderFavorites() {
+      const favorites = EVENTS.filter(ev => selectedIds.has(ev.id));
+
+      if (!favorites.length) {
+        $favoritesWrapper.innerHTML =
+          '<div class="empty">まだチームが選択されていません。上の一覧からチェックを入れてください。</div>';
+        $favCount.textContent = "選択 0 件";
+        return;
+      }
+
+      $favCount.textContent = `選択 ${favorites.length} 件`;
+
+      const sorted = [...favorites].sort((a, b) => {
+        if (a.date === b.date) {
+          if (a.start === b.start) {
+            return a.stage.localeCompare(b.stage, "ja");
+          }
+          return a.start.localeCompare(b.start);
+        }
+        return a.date.localeCompare(b.date);
+      });
+
+      const rowsHtml = sorted
+        .map(ev => {
+          const bandClass = getBandClass(ev.start);
+          return `
+          <tr class="${bandClass}">
+            <td>
+              <span class="badge-day">${ev.day}</span><br />
+              <span style="font-size:0.75rem; color:#888;">${ev.date}</span>
+            </td>
+            <td>${ev.start}〜${ev.end || ""}</td>
+            <td><span class="badge-stage">${ev.stage}</span></td>
+            <td>${ev.group}</td>
+          </tr>
+        `;
+        })
+        .join("");
+
+      const tableHtml = `
+        <table>
+          <thead>
+            <tr>
+              <th>日程</th>
+              <th>時間</th>
+              <th>会場</th>
+              <th>チーム</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rowsHtml}
+          </tbody>
+        </table>
+      `;
+
+      $favoritesWrapper.innerHTML = tableHtml;
+    }
+
+    $keyword.addEventListener("input", applyFilters);
+    $stage.addEventListener("change", applyFilters);
+    $resetBtn.addEventListener("click", () => {
+      $keyword.value = "";
+      $stage.value = "";
+      applyFilters();
+    });
+
+    loadSelected();
+    renderTable(EVENTS);
+    renderFavorites();
+  
+const stageSelect2 = document.getElementById("stage");
+const mapBox2 = document.getElementById("mapBox");
+const mapItems = document.querySelectorAll(".mapItem");
+
+stageSelect2.addEventListener("change", () => {
+  const val = stageSelect2.value;
+  let shown = false;
+  mapItems.forEach(m => {
+    if (m.dataset.key === val) {
+      m.style.display = "block";
+      shown = true;
+    } else {
+      m.style.display = "none";
+    }
+  });
+  mapBox2.style.display = shown ? "block" : "none";
+});
+
+</script>
+</body>
+</html>
